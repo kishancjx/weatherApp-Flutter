@@ -1,3 +1,7 @@
+#Api Related
+/lib/secrets.dart
+
+
 # Miscellaneous
 *.class
 *.log
