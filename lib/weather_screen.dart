@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'secrets.dart';
 
 class WeatherScreen extends StatefulWidget {
@@ -52,7 +54,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-              onPressed: () => print("refresh"),
+              onPressed: () => setState(() {
+                
+              }),
               icon: const Icon(Icons.refresh_sharp))
         ],
       ),
@@ -131,20 +135,24 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 12),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (int i = 0; i < 8; i++)
-                        ForeCastItem(
-                            time: (data['list'][i]["dt_txt"]).substring(11, 16),
-                            icon: Icon(Icons.cloud, size: 32),
-                            temperature:
-                                (((data['list'][i]['main']['temp']) - 273)
-                                        .toStringAsFixed(1)) +
-                                    "°C")
-                    ],
-                  ),
+                SizedBox(
+                  height: 110,
+                  child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 20,
+                      itemBuilder: (context, index) {
+                        final hourlyForecast = data['list'][index];
+
+                        final time = DateTime.parse(hourlyForecast["dt_txt"]);
+                        final temperatureinC =
+                            (hourlyForecast['main']['temp'] - 273)
+                                    .toStringAsFixed(1) +
+                                "°C";
+                        return ForeCastItem(
+                            time: DateFormat.j().format(time).toString(),
+                            icon: Icon(Icons.cloud),
+                            temperature: temperatureinC);
+                      }),
                 ),
                 SizedBox(height: 25),
                 Text("Additional Information",
