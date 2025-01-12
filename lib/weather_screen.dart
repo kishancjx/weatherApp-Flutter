@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:weather_app/additional_items.dart';
+import 'package:weather_app/forecastitem.dart';
 import 'secrets.dart';
 
 class WeatherScreen extends StatefulWidget {
@@ -14,11 +16,14 @@ class WeatherScreen extends StatefulWidget {
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
+  late Future<Map<String,dynamic>>  _weatherCurrent;
+
   @override
   void initState() {
     super.initState();
-    getCurrentWeather();
+    _weatherCurrent = getCurrentWeather();
   }
+
 
   Future<Map<String, dynamic>> getCurrentWeather() async {
     try {
@@ -33,11 +38,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
         throw "Error 200 happend bro!";
       }
 
-      // temp = (data['list'][0]['main']['temp']);
-      // temp = double.parse((temp - 273).toStringAsFixed(1));
       return data;
 
-      // print("The Temperature Is $temp");
+      
     } catch (e) {
       throw e.toString();
     }
@@ -55,13 +58,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
         actions: [
           IconButton(
               onPressed: () => setState(() {
+                _weatherCurrent = getCurrentWeather();
                 
               }),
               icon: const Icon(Icons.refresh_sharp))
         ],
       ),
       body: FutureBuilder(
-        future: getCurrentWeather(),
+        future: _weatherCurrent,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: const CircularProgressIndicator.adaptive());
@@ -139,7 +143,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   height: 110,
                   child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: 20,
+                      itemCount: 8,
                       itemBuilder: (context, index) {
                         final hourlyForecast = data['list'][index];
 
@@ -189,65 +193,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class AdditionalItems extends StatelessWidget {
-  final String info;
-  final Icon icon;
-  final String value;
-  const AdditionalItems(
-      {required this.info, required this.icon, required this.value, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-      child: Column(
-        children: [
-          icon,
-          SizedBox(height: 8),
-          Text(info, style: TextStyle(fontSize: 14)),
-          SizedBox(height: 8),
-          Text(value,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        ],
-      ),
-    );
-  }
-}
-
-class ForeCastItem extends StatelessWidget {
-  final String time;
-  final Icon icon;
-  final String temperature;
-  const ForeCastItem(
-      {super.key,
-      required this.time,
-      required this.icon,
-      required this.temperature});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 10,
-      child: Container(
-        width: 100,
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Text(time,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 8),
-            icon,
-            const SizedBox(height: 8),
-            Text(temperature,
-                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 12)),
-          ],
-        ),
       ),
     );
   }
